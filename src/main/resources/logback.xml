@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Логи идут в stderr: stdout — это вывод программы, туда отладку мешать нельзя.
+  Подробный вывод: ./gradlew run -Dacademy.log.level=DEBUG
+-->
+<configuration>
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{24} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <root level="${academy.log.level:-INFO}">
+        <appender-ref ref="STDERR"/>
+    </root>
+</configuration>

@@ -1,0 +1,59 @@
+# Локально всё то же самое запускается одной командой: ./gradlew check
+
+image: "${GITLAB_DOCKER_PROXY}/library/gradle:9.7.1-jdk25"
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_REF_PROTECTED == 'true'
+
+variables:
+  GITLAB_DOCKER_PROXY: "gitlab.education.tbank.ru:443/t-academy-2026/java-advanced/materials/dependency_proxy/containers"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+default:
+  cache:
+    key: "gradle-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .gradle/caches
+
+stages:
+  - build
+  - verify
+
+build:
+  stage: build
+  # Error Prone и NullAway работают на этапе компиляции, здесь же и падают.
+  script:
+    - gradle --info --stacktrace --console=plain assemble
+  artifacts:
+    paths:
+      - build/libs
+    expire_in: 1 week
+
+lint:
+  stage: verify
+  needs: ["build"]
+  script:
+    - gradle --info --stacktrace --console=plain spotlessCheck checkstyleMain checkstyleTest
+  artifacts:
+    when: always
+    paths:
+      - build/reports/checkstyle
+    expire_in: 1 week
+
+test:
+  stage: verify
+  needs: ["build"]
+  script:
+    - gradle --info --stacktrace --console=plain test printCoverage
+  coverage: '/Покрытие инструкций: (\d+\.\d+)%/'
+  artifacts:
+    when: always
+    reports:
+      junit: build/test-results/test/TEST-*.xml
+    paths:
+      - build/reports/tests
+      - build/reports/jacoco
+    expire_in: 1 week

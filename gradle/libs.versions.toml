@@ -1,0 +1,77 @@
+# Каталог библиотек, одобренных для проектов курса.
+#
+# Чтобы подключить библиотеку, добавь в dependencies файла build.gradle.kts
+# строку вида `implementation(libs.picocli)`. Версию указывать не нужно.
+# Дефис в имени превращается в точку: assertj-core -> libs.assertj.core
+#
+# Добавлять сюда новые библиотеки — только по согласованию с ментором.
+
+[versions]
+java = "25"
+
+checkstyle = "14.0.0"
+jacoco = "0.8.15"
+palantir-java-format = "2.97.0"
+
+errorprone = "2.50.0"
+nullaway = "0.13.8"
+jspecify = "1.0.1"
+
+jackson = "2.22.2"
+picocli = "4.7.7"
+slf4j = "2.0.18"
+logback = "1.6.3"
+
+junit = "6.1.3"
+assertj = "3.27.7"
+mockito = "5.23.0"
+wiremock = "3.13.2"
+
+# Префикс plugin- обязателен: имя `errorprone` уже занято версией инструмента выше.
+plugin-spotless = "8.10.0"
+plugin-errorprone = "5.1.0"
+
+[libraries]
+# BOM согласует версии артефактов одного семейства.
+# Подключается как implementation(platform(libs.xxx.bom)).
+jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "mockito" }
+
+# Разбор аргументов командной строки: опции, подкоманды, --help, коды возврата.
+picocli = { module = "info.picocli:picocli", version.ref = "picocli" }
+
+# JSON и YAML. Версии задаёт jackson-bom.
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" }
+jackson-module-parameter-names = { module = "com.fasterxml.jackson.module:jackson-module-parameter-names" }
+
+# Логирование: slf4j-api вызывает код, logback — реализация.
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+# Тесты. Версии задают junit-bom и mockito-bom.
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+mockito-core = { module = "org.mockito:mockito-core" }
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter" }
+
+# HTTP-заглушка для тестов. Обычно хватает com.sun.net.httpserver.
+wiremock = { module = "org.wiremock:wiremock", version.ref = "wiremock" }
+
+# Статический анализ: Error Prone ловит баги на этапе компиляции,
+# NullAway поверх него следит за null, JSpecify даёт аннотации @Nullable/@NullMarked.
+errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
+nullaway = { module = "com.uber.nullaway:nullaway", version.ref = "nullaway" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+
+[bundles]
+jackson = ["jackson-databind", "jackson-datatype-jsr310", "jackson-module-parameter-names"]
+testing = ["junit-jupiter", "assertj-core"]
+mockito = ["mockito-core", "mockito-junit-jupiter"]
+
+[plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "plugin-spotless" }
+errorprone = { id = "net.ltgt.errorprone", version.ref = "plugin-errorprone" }

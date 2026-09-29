@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- В тестах числа и литералы — это и есть суть проверки. -->
+    <suppress checks="MagicNumber" files="[\\/]src[\\/]test[\\/]"/>
+    <suppress checks="MethodLength" files="[\\/]src[\\/]test[\\/]"/>
+    <suppress checks="VisibilityModifier" files="[\\/]src[\\/]test[\\/]"/>
+    <suppress checks="HideUtilityClassConstructor" files="[\\/]src[\\/]test[\\/]"/>
+    <suppress checks="IllegalCatch" files="[\\/]src[\\/]test[\\/]"/>
+</suppressions>
