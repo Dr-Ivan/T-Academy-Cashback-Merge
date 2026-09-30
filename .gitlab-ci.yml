@@ -1,11 +1,12 @@
-# Локально всё то же самое запускается одной командой: ./gradlew check
+# Локальная проверка: ./gradlew --continue assemble check printCoverage
 
 image: "${GITLAB_DOCKER_PROXY}/library/gradle:9.7.1-jdk25"
 
 workflow:
+  auto_cancel:
+    on_new_commit: interruptible
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_REF_PROTECTED == 'true'
 
 variables:
   GITLAB_DOCKER_PROXY: "gitlab.education.tbank.ru:443/t-academy-2026/java-advanced/materials/dependency_proxy/containers"
@@ -13,47 +14,29 @@ variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 default:
+  interruptible: true
   cache:
     key: "gradle-$CI_COMMIT_REF_SLUG"
     paths:
       - .gradle/caches
 
 stages:
-  - build
   - verify
 
-build:
-  stage: build
-  # Error Prone и NullAway работают на этапе компиляции, здесь же и падают.
-  script:
-    - gradle --info --stacktrace --console=plain assemble
-  artifacts:
-    paths:
-      - build/libs
-    expire_in: 1 week
-
-lint:
+check:
   stage: verify
-  needs: ["build"]
+  # Один запуск Gradle для сборки, линтеров и тестов.
+  # --continue позволяет получить остальные отчёты при ошибке одной из проверок.
   script:
-    - gradle --info --stacktrace --console=plain spotlessCheck checkstyleMain checkstyleTest
-  artifacts:
-    when: always
-    paths:
-      - build/reports/checkstyle
-    expire_in: 1 week
-
-test:
-  stage: verify
-  needs: ["build"]
-  script:
-    - gradle --info --stacktrace --console=plain test printCoverage
+    - gradle --continue --stacktrace --console=plain assemble check printCoverage
   coverage: '/Покрытие инструкций: (\d+\.\d+)%/'
   artifacts:
     when: always
     reports:
       junit: build/test-results/test/TEST-*.xml
     paths:
+      - build/libs
+      - build/reports/checkstyle
       - build/reports/tests
       - build/reports/jacoco
     expire_in: 1 week
