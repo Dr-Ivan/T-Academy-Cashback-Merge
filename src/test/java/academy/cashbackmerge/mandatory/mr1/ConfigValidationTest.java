@@ -1,8 +1,14 @@
 package academy.cashbackmerge.mandatory.mr1;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.junit.jupiter.api.Disabled;
+import academy.cashbackmerge.config.CampaignConfig;
+import academy.cashbackmerge.config.SpawnRule;
+import academy.cashbackmerge.model.Cashback;
+import academy.cashbackmerge.support.CampaignFixtures;
+import java.math.BigDecimal;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -11,30 +17,61 @@ import org.junit.jupiter.api.Test;
 class ConfigValidationTest {
 
     @Test
-    @Disabled("MR1: реализуй тест и удали эту строку")
     @DisplayName("Валидный конфиг принимается")
     void validConfigIsAccepted() {
-        fail("Тест не реализован");
+        var config = CampaignFixtures.validConfig();
+
+        assertThat(config.boardSize()).isEqualTo(4);
+        assertThat(config.movesLimit()).isEqualTo(100);
+        assertThat(config.spawnRules()).hasSize(2);
+        assertThat(config.rewardTable()).hasSize(5);
+        assertThat(config.maxRewardCashback()).isEqualTo(Cashback.of(32));
+        assertThat(config.maxRewardAllowedRate()).isEqualByComparingTo(new BigDecimal("0.20"));
     }
 
     @Test
-    @Disabled("MR1: реализуй тест и удали эту строку")
     @DisplayName("Сумма вероятностей spawn-правил не равна 1 — конфиг отклоняется")
     void probabilitiesNotSummingToOneAreRejected() {
-        fail("Тест не реализован");
+        for (var probability : List.of("0.84", "0.86", "0.84999999999999999999")) {
+            var rules = List.of(
+                    new SpawnRule(Cashback.of(1), new BigDecimal(probability)),
+                    new SpawnRule(Cashback.of(2), new BigDecimal("0.15")));
+
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> createConfig(100, rules))
+                    .withMessageContaining("Сумма вероятностей");
+        }
     }
 
     @Test
-    @Disabled("MR1: реализуй тест и удали эту строку")
     @DisplayName("movesLimit <= 0 — конфиг отклоняется")
     void nonPositiveMovesLimitIsRejected() {
-        fail("Тест не реализован");
+        var rules = CampaignFixtures.validConfig().spawnRules();
+
+        for (int movesLimit : new int[] {0, -1}) {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> createConfig(movesLimit, rules))
+                    .withMessageContaining("movesLimit");
+        }
     }
 
     @Test
-    @Disabled("MR1: реализуй тест и удали эту строку")
     @DisplayName("Пустой список spawn-правил — конфиг отклоняется")
     void emptySpawnRulesAreRejected() {
-        fail("Тест не реализован");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> createConfig(100, List.of()))
+                .withMessageContaining("spawnRules");
+    }
+
+    private static CampaignConfig createConfig(int movesLimit, List<SpawnRule> rules) {
+        var base = CampaignFixtures.validConfig();
+
+        return new CampaignConfig(
+                base.boardSize(),
+                movesLimit,
+                rules,
+                base.rewardTable(),
+                base.maxRewardCashback(),
+                base.maxRewardAllowedRate());
     }
 }
