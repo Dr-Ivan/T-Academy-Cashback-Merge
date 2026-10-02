@@ -1,7 +1,10 @@
 package academy.cashbackmerge.mandatory.mr1;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import academy.cashbackmerge.engine.GameInitializer;
+import academy.cashbackmerge.support.CampaignFixtures;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,10 +14,15 @@ import org.junit.jupiter.api.Test;
 class SeedTest {
 
     @Test
-    @Disabled("MR1: реализуй тест и удали эту строку")
     @DisplayName("Одинаковый конфиг и seed дают одинаковое начальное поле")
     void sameConfigAndSeedProduceSameInitialBoard() {
-        fail("Тест не реализован");
+        var config = CampaignFixtures.validConfig();
+        var initializer = new GameInitializer(config);
+
+        var first = initializer.initialize(42L);
+        var second = initializer.initialize(42L);
+
+        assertThat(first.board()).isEqualTo(second.board());
     }
 
     @Test
