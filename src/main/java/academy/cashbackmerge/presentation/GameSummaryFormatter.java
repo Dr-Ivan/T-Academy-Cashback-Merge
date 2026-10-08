@@ -18,14 +18,8 @@ public final class GameSummaryFormatter {
                 .map(Move::name)
                 .collect(Collectors.joining(","));
         var replayMoves = sequence.isEmpty() ? "(пустой список)" : sequence;
-        var message =
-                switch (status) {
-                    case IN_PROGRESS -> "Партия не завершена.";
-                    case MOVES_LIMIT_REACHED -> "Партия завершена: достигнут лимит ходов.";
-                    case NO_VALID_MOVES -> "Партия завершена: нет доступных ходов.";
-                };
 
-        return "Seed: " + seed + "\nХоды для replay: " + replayMoves + "\n" + stateFormatter.format(state) + message
-                + "\n";
+        return "Seed: " + seed + "\nХоды для replay: " + replayMoves + "\n" + stateFormatter.format(state)
+                + status.message() + "\n";
     }
 }
