@@ -27,4 +27,19 @@ public final class CampaignFixtures {
                 Cashback.of(32),
                 new BigDecimal("0.20"));
     }
+
+    public static CampaignConfig simulationConfig() {
+        return new CampaignConfig(
+                2,
+                8,
+                List.of(
+                        new SpawnRule(Cashback.of(1), new BigDecimal("0.70")),
+                        new SpawnRule(Cashback.of(2), new BigDecimal("0.30"))),
+                List.of(
+                        new RewardTier(Cashback.of(2), BigDecimal.ZERO),
+                        new RewardTier(Cashback.of(4), new BigDecimal("2.50")),
+                        new RewardTier(Cashback.of(8), BigDecimal.TEN)),
+                Cashback.of(8),
+                new BigDecimal("0.25"));
+    }
 }
