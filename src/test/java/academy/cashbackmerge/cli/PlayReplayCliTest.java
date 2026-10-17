@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -206,6 +207,37 @@ class PlayReplayCliTest {
         assertThat(result.exitCode()).isZero();
         assertThat(result.stderr()).isEmpty();
         assertThat(result.stdout()).contains("Ходы для replay: RIGHT,LEFT", "Ходы: 1 / 100");
+    }
+
+    @ParameterizedTest(name = "Лимит {0}, ходы {1}")
+    @CsvSource({
+        "1, RIGHT, Итоговая награда, Партия завершена: достигнут лимит ходов.",
+        "100, 'RIGHT,UP', Итоговая награда, Партия завершена: нет доступных ходов.",
+        "100, RIGHT, Награда по текущему полю, Партия не завершена."
+    })
+    @DisplayName("Play и replay показывают одинаковую награду из конфига при завершении и остановке")
+    void showsConfiguredReward(
+            int movesLimit, String moves, String rewardLabel, String message, @TempDir Path directory)
+            throws IOException {
+        var path = directory.resolve("campaign with reward.json");
+        writeConfig(path, 2, movesLimit, true);
+        var root = (ObjectNode) new ObjectMapper().readTree(path.toFile());
+        root.putArray("rewardTable").addObject().put("cashback", "32").put("reward", "12.50");
+        Files.writeString(path, root.toString());
+
+        var played = run(moves.replace(',', '\n') + "\nQUIT\n", "play", "--config", path.toString(), "--seed", "42");
+        var replayed = run("", "replay", "--config", path.toString(), "--seed", "42", "--moves", moves);
+
+        assertThat(played.exitCode()).isZero();
+        assertThat(replayed.exitCode()).isZero();
+        assertThat(played.stderr()).isEmpty();
+        assertThat(replayed.stderr()).isEmpty();
+        assertThat(summary(played.stdout())).isEqualTo(replayed.stdout());
+        assertThat(replayed.stdout())
+                .contains("Счёт: 0\n", "Максимальная плитка: 32%\n", rewardLabel + ": 12.5\n", message);
+        if ("Награда по текущему полю".equals(rewardLabel)) {
+            assertThat(replayed.stdout()).doesNotContain("Итоговая награда");
+        }
     }
 
     private static Stream<Arguments> invalidArguments() {
