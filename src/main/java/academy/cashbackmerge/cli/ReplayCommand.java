@@ -3,6 +3,7 @@ package academy.cashbackmerge.cli;
 import academy.cashbackmerge.config.CampaignConfigLoader;
 import academy.cashbackmerge.engine.GameSession;
 import academy.cashbackmerge.presentation.GameSummaryFormatter;
+import academy.cashbackmerge.reward.RewardCalculator;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -51,8 +52,9 @@ public final class ReplayCommand implements Callable<Integer> {
                 .commandLine()
                 .getOut();
 
-        output.print(
-                new GameSummaryFormatter().format(session.seed(), session.state(), session.status(), sequence.moves()));
+        var result = new RewardCalculator(config).calculate(session.state());
+        output.print(new GameSummaryFormatter()
+                .format(session.seed(), session.state(), session.status(), sequence.moves(), result));
         output.flush();
         return ExitCode.OK;
     }
