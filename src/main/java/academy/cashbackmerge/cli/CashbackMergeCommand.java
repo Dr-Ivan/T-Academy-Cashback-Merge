@@ -14,7 +14,7 @@ import picocli.CommandLine.Spec;
         description = "Игра Cashback Merge и проверка кампаний.")
 public final class CashbackMergeCommand implements Runnable {
 
-    public static final String VERSION = "Cashback Merge MR2";
+    public static final String VERSION = "Cashback Merge MR3";
 
     @Spec
     private @Nullable CommandSpec spec;
