@@ -19,6 +19,11 @@ public enum ReportFormat {
         }
 
         @Override
+        String subheading(String text) {
+            return "### " + escape(text) + "\n\n";
+        }
+
+        @Override
         String paragraph(String text) {
             return escape(text) + "\n\n";
         }
@@ -93,6 +98,11 @@ public enum ReportFormat {
         }
 
         @Override
+        String subheading(String text) {
+            return "<h3>" + escape(text) + "</h3>\n";
+        }
+
+        @Override
         String paragraph(String text) {
             return "<p>" + escape(text) + "</p>\n";
         }
@@ -146,6 +156,8 @@ public enum ReportFormat {
     abstract String document(String title, String body);
 
     abstract String heading(String text);
+
+    abstract String subheading(String text);
 
     abstract String paragraph(String text);
 

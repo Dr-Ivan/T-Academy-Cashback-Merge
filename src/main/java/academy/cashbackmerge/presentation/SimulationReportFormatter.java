@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 public final class SimulationReportFormatter {
 
@@ -14,22 +15,30 @@ public final class SimulationReportFormatter {
         Objects.requireNonNull(report, "Отчёт не должен быть null");
         Objects.requireNonNull(format, "Формат отчёта не должен быть null");
 
+        return format.document("Симуляция Cashback Merge", sections(report, format, format::heading));
+    }
+
+    String formatDetails(SimulationReport report, ReportFormat format) {
+        return sections(report, format, format::subheading);
+    }
+
+    private String sections(SimulationReport report, ReportFormat format, UnaryOperator<String> heading) {
         var config = report.config();
-        var output = format.heading("Параметры запуска")
+        return heading.apply("Параметры запуска")
                 + format.table(List.of("Параметр", "Значение"), parameters(report))
-                + format.heading("Результаты")
+                + heading.apply("Результаты")
                 + format.table(List.of("Показатель", "Значение"), summary(report))
-                + format.heading("Распределение максимальных плиток")
+                + heading.apply("Распределение максимальных плиток")
                 + format.table(List.of("Кэшбэк", "Игроков"), cashbacks(report))
-                + format.heading("Распределение наград")
+                + heading.apply("Распределение наград")
                 + format.table(List.of("Награда", "Игроков"), rewards(report))
-                + format.heading("Правила появления плиток")
+                + heading.apply("Правила появления плиток")
                 + format.table(
                         List.of("Кэшбэк", "Вероятность"),
                         config.spawnRules().stream()
                                 .map(rule -> List.of(rule.cashback().value() + "%", number(rule.probability())))
                                 .toList())
-                + format.heading("Таблица наград")
+                + heading.apply("Таблица наград")
                 + format.table(
                         List.of("Порог кэшбэка", "Награда"),
                         config.rewardTable().stream()
@@ -38,8 +47,6 @@ public final class SimulationReportFormatter {
                 + format.paragraph("Доли указаны от 0 до 1. Статус рассчитан по точным счётчикам до округления.")
                 + format.paragraph(
                         "Эмпирическая проверка для указанных конфигурации, seed, числа игроков и стратегии.");
-
-        return format.document("Симуляция Cashback Merge", output);
     }
 
     private static List<List<String>> parameters(SimulationReport report) {
