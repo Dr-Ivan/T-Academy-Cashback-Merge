@@ -57,6 +57,18 @@ public enum PlayerStrategy {
         return selectMove(options, random);
     }
 
+    public static PlayerStrategy fromCliName(String value) {
+        var name = Objects.requireNonNull(value, "Имя стратегии не должно быть null")
+                .strip();
+        for (var strategy : values()) {
+            if (strategy.cliName.equalsIgnoreCase(name)) {
+                return strategy;
+            }
+        }
+        throw new IllegalArgumentException(
+                "Неизвестная стратегия '" + value + "'. Допустимые значения: random, greedy-score.");
+    }
+
     abstract Move selectMove(List<MoveOption> options, RandomGenerator random);
 
     record MoveOption(Move move, long scoreDelta) {}
