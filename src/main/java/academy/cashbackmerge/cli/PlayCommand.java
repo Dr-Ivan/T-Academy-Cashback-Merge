@@ -5,6 +5,7 @@ import academy.cashbackmerge.engine.GameSession;
 import academy.cashbackmerge.model.Move;
 import academy.cashbackmerge.presentation.GameStateFormatter;
 import academy.cashbackmerge.presentation.GameSummaryFormatter;
+import academy.cashbackmerge.reward.RewardCalculator;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -73,7 +74,9 @@ public final class PlayCommand implements Callable<Integer> {
         play(session, history, output, commandLine.getErr());
 
         output.print("\nРезультат партии:\n");
-        output.print(new GameSummaryFormatter().format(session.seed(), session.state(), session.status(), history));
+        var result = new RewardCalculator(config).calculate(session.state());
+        output.print(
+                new GameSummaryFormatter().format(session.seed(), session.state(), session.status(), history, result));
         output.flush();
         return ExitCode.OK;
     }

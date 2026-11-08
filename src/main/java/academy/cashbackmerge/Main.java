@@ -1,9 +1,11 @@
 package academy.cashbackmerge;
 
 import academy.cashbackmerge.cli.CashbackMergeCommand;
+import academy.cashbackmerge.cli.CompareCommand;
 import academy.cashbackmerge.cli.InitializeCommand;
 import academy.cashbackmerge.cli.PlayCommand;
 import academy.cashbackmerge.cli.ReplayCommand;
+import academy.cashbackmerge.cli.SimulateCommand;
 import academy.cashbackmerge.config.ConfigLoadException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -41,6 +43,8 @@ public final class Main {
                 .addSubcommand(new InitializeCommand())
                 .addSubcommand(new PlayCommand(input))
                 .addSubcommand(new ReplayCommand())
+                .addSubcommand(new SimulateCommand())
+                .addSubcommand(new CompareCommand())
                 .setExecutionExceptionHandler((exception, commandLine, parseResult) -> {
                     if (exception instanceof ConfigLoadException) {
                         commandLine.getErr().println("Ошибка: " + exception.getMessage());
