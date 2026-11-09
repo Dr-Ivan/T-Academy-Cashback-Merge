@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -162,9 +163,10 @@ class CashbackMergeCliTest {
         var stderr = new StringWriter();
         int exitCode;
 
-        try (var out = new PrintWriter(stdout, true);
+        try (var input = new StringReader("");
+                var out = new PrintWriter(stdout, true);
                 var err = new PrintWriter(stderr, true)) {
-            exitCode = Main.createCommandLine().setOut(out).setErr(err).execute(args);
+            exitCode = Main.createCommandLine(input).setOut(out).setErr(err).execute(args);
         }
 
         return new Result(
